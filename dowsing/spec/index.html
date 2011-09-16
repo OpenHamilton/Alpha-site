@@ -1,0 +1,421 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+		<title>General Recreational Activity Feed Specification - OpenHamilton</title>
+
+		<link href="reset.css" type="text/css" rel="stylesheet" media="all" />
+		<link href="main.css" type="text/css" rel="stylesheet" media="all" />
+	</head>
+
+	<body>
+		<div id="container">
+			<h1 class="title" id="top">General Recreational Activity Feed Specification</h1>
+			<p class="text">
+				<b>Revised August 3, 2011</b><br/><br/>
+				The General Recreational Activity Feed Specification defines a common format for identifying water resources and their associated schedules.  This document explains the specification in detail and is a work in progress.  We value any feedback you might have to improve the specification and do not gaurantee that things won't change without notice.
+			</p>
+			<br/>
+
+			<h2 class="title">Table Of Contents</h2>
+			<ol class="toc">
+				<li><a href="#authors">Authors</a></li>
+				<li><a href="#status">Document Status</a></li>
+				<li><a href="#terms">Common Terms</a></li>
+				<li><a href="#requirements">Requirements</a></li>
+				<li>
+					<a href="#definitions">Field Definitions</a><br/>
+					&nbsp;&nbsp;&nbsp;&nbsp;<a href="#facilities_txt" class="sub">facilities.txt</a><br/>
+					&nbsp;&nbsp;&nbsp;&nbsp;<a href="#resources_txt" class="sub">resources.txt</a><br/>
+					&nbsp;&nbsp;&nbsp;&nbsp;<a href="#activities_txt" class="sub">activites.txt</a><br/>
+					&nbsp;&nbsp;&nbsp;&nbsp;<a href="#activity_times_txt" class="sub">activity_times.txt</a><br/>
+					&nbsp;&nbsp;&nbsp;&nbsp;<a href="#activity_exceptions_txt" class="sub">activity_exceptions.txt</a><br/>
+					&nbsp;&nbsp;&nbsp;&nbsp;<a href="#fees_txt" class="sub">fees.txt</a><br/>
+					&nbsp;&nbsp;&nbsp;&nbsp;<a href="#fee_classes_txt" class="sub">fee_classes.txt</a>
+				</li>
+				<li><a href="#sample">Sample Data</a></li>
+			</ol>
+
+			<h2 class="title" id="authors">Authors</h2>
+			<p class="text">
+				Joey Coleman, Nik Garkusha, Juan Musleh, Gavin Schulz
+			</p>
+
+			<a href="#top" class="back">Back to Top</a>
+
+			<h2 class="title" id="status">Document Status</h2>
+			<p class="text">
+				This is the first formalization of the specification that was drafted at August 3rd's OpenHamilton meetup.  We are working to extend the minimal specification currently defined based on ideas first presented in the <a href="http://code.google.com/transit/spec/transit_feed_specification.html">General Transit Feed Specification</a>.  If you would like to work on the specification you can join the <a href="groups.google.com/group/openhamilton">mailing list</a>. 
+			</p>
+
+			<a href="#top" class="back">Back to Top</a>
+
+			<h2 class="title" id="terms">Common Terms</h2>
+			<p class="text">
+				This section defines some terms that will be used throughout the document.
+				<ul>
+					<li>
+						<b>Field required</b> - This is a required value and the column must be present.  Some fields may allow an empty/null value such as an empty string or 0.  An empty string is represented as leaving no space in between the two commas for the field.
+					</li>
+					<li>
+						<b>Field optional</b> - This column may be omitted from your feed but if included requires that each record have a value assigned in the field.  Some fields may allow an empty/null value such as an empty string or 0.  An empty string is represented as leaving no space in between the two commas for the field.
+					</li>
+				</ul>
+			</p>
+
+			<a href="#top" class="back">Back to Top</a>
+
+			<h2 class="title" id="requirements">Requirements</h2>
+			<p class="text">
+				This specification defines the following files:
+				<ul>
+					<li>
+						<b><a href="#facilities_txt">facilities.txt</a></b> - <b>Required</b>.  This file contains information regarding the facilities an organization makes available to the public.
+					</li>
+					<li>
+						<b><a href="#resources_txt">resources.txt</a></b> - <b>Required</b>.  This file contains information regarding the various water resources available at a given facility.  Examples of resources would be pools, splash pads and beaches.
+					</li>
+					<li>
+						<b><a href="#activities_txt">activites.txt</a></b> - <b>Required</b>.  This file contains information regarding any activities that are offered at a particular resource.
+					</li>
+					<li>
+						<b><a href="#activity_times_txt">activity_times.txt</a></b> - <b>Required</b>.  This file contains scheduling information for the various activities that are offered at a particular resource.
+					</li>
+					<li>
+						<b><a href="#activity_exceptions_txt">activity_exceptions.txt</a></b> - <b>Optional</b>.  This file contains any service exceptions that may arise due to inconsistents events (holidays, etc) affecting an activity's availability.
+					</li>
+					<li>
+						<b><a href="#fees_txt">fees.txt</a></b> - <b>Required</b>.  This file contains the single use fee structures associated with your agency's activities.
+					</li>
+					<li>
+						<b><a href="#fee_classes_txt">fee_classes.txt</a></b> - <b>Required</b>.  This file contains composition of fees in order to ease querying.
+					</li>
+				</ul>
+			</p>
+
+			<h2 class="inline">File Requirements</h2>
+			<p class="text">
+				The following requirements apply to the format and contents of your files:
+				<ul>
+					<li>All files in a Water Specification Format must be saved as comma-delimited text.</li>
+					<li>The first line of each file must contain field names. Each subsection of the <a href="#definitions">Field Definitions</a> section corresponds to one of the files in a transit feed and lists the field names you may use in that file.</li>
+					<li>All field names are case-sensitive.</li>
+					<li>Field values may not contain tabs, carriage returns or new lines.</li>
+					<li>
+						Field values that contain quotation marks or commas must be enclosed within quotation marks. In addition, each quotation mark in the field value must be preceded with a quotation mark. This is consistent with the manner in which Microsoft Excel outputs comma-delimited (CSV) files. For more information on the CSV file format, see <a href="http://tools.ietf.org/html/rfc4180">http://tools.ietf.org/html/rfc4180</a>.<br/>
+						The following example demonstrates how a field value would appear in a comma-delimited file:</br>
+						<ul class="sub">
+							<li><b>Original field value:</b>&nbsp;&nbsp;<pre>Contains "quotes", commas and text</pre></li>
+							<li><b>Field value in CSV file:</b>&nbsp;&nbsp;<pre>"Contains ""quotes"", commas and text"</pre></li>
+						</ul>
+					</li>
+					<li>Field values must not contain HTML tags, comments or escape sequences.</li>
+					<li>Remove any extra spaces between fields or field names. Many parsers consider the spaces to be part of the value, which may cause errors.</li>
+					<li>Each line must end with a CRLF or LF linebreak character.</li>
+					<li>Files should be encoded in UTF-8 to support all Unicode characters. Files that include the Unicode byte-order mark (BOM) character are acceptable. Please see the Unicode FAQ for more information on the BOM character and UTF-8.</li>
+					<li>
+						Name your feed files using the following naming conventions:
+						<ul class="sub">
+							<li>facilities.txt</li>
+							<li>resources.txt</li>
+							<li>activities.txt</li>
+							<li>activity_times.txt</li>
+							<li>activity_exceptions.txt</li>
+							<li>fees.txt</li>
+							<li>fee_classes.txt</li>
+						</ul>
+					</li>
+					<li>Zip the files in your feed.</li>
+				</ul>
+			</p>
+
+			<h2 class="inline">Testing Your Feeds</h2>
+			<p class="text">We still need to write these :P</p>
+
+			<a href="#top" class="back">Back to Top</a>
+
+			<h2 class="title" id="definitions">Field Definitions</h2>
+			<br/>
+			<h2 class="inline" id="facilities_txt">facilities.txt</h2>
+			<table>
+				<tr class="top">
+					<td width="25%">Field Name</td>
+					<td width="85%">Details</td>
+				</tr>
+				<tr>
+					<td>facility_id</td>
+					<td><b>Required</b>.  The <b>facility_id</b> field is an ID that uniquely identifies a facility within an organization.  Each ID must be a unique value within the respective organization.</td>
+				</tr>
+				<tr>
+					<td>facility_name</td>
+					<td><b>Required</b>.  The <b>facility_name</b> field is the name of the facility that will be displayed to the end user.</td>
+				</tr>
+				<tr>
+					<td>facility_address</td>
+					<td><b>Optional</b>.  The <b>facility_address</b> field is the official street address of the facility.  It is not used to determine <b>resource_lat</b> and <b>resource_lng</b>.
+				</tr>
+				<tr>
+					<td>facility_city</td>
+					<td><b>Optional</b>.  The <b>facility_city</b> field is the municipality the facility is in.
+				</tr>
+				<tr>
+					<td>facility_phone</td>
+					<td><b>Optional</b>.  The <b>facility_phone</b> field is a string of digits only of either 9 or 10 characters in length.</td>
+				</tr>
+				<tr>
+					<td>facility_email</td>
+					<td><b>Optional</b>.  The <b>facility_email</b> field is the facility's email address or a general information email address if no facility-specific address exists.</td>
+				</tr>
+			</table>
+
+			<h2 class="inline" id="resources_txt">resources.txt</h2>
+			<table>
+				<tr class="top">
+					<td width="25%">Field Name</td>
+					<td width="85%">Details</td>
+				</tr>
+				<tr>
+					<td>resource_id</td>
+					<td><b>Required</b>.  The <b>resource_id</b> field is an ID that uniquely identifies a resource that is located at a facility.  Each ID must be a unique value within the respective organization.</td>
+				</tr>
+				<tr>
+					<td>facility_id</td>
+					<td><b>Required</b>.  The <b>facility_id</b> references a facility defined in <a href="#facilities_txt">facilities.txt</a> which this resource is located in.</td>
+				<tr>
+					<td>resource_name</td>
+					<td><b>Required</b>.  The <b>resource_name</b> field is the name of the resource that will be displayed to the end user.</td>
+				</tr>
+				<tr>
+					<td>resource_lat</td>
+					<td><b>Required</b>.  The <b>resource_lat</b> field specifies the latitude of the the resource.</td>
+				</tr>
+				<tr>
+					<td>resource_lng</td>
+					<td><b>Required</b>.  The <b>resource_lng</b> field specifies the longitude of the the resource.</td>
+				</tr>
+			</table>
+
+			<h2 class="inline" id="activities_txt">activities.txt</h2>
+			<table>
+				<tr class="top">
+					<td width="25%">Field Name</td>
+					<td width="85%">Details</td>
+				</tr>
+				<tr>
+					<td>activity_id</td>
+					<td><b>Required</b>.  The <b>activity_id</b> field is an ID that uniquely identifies an activity that is offered at a resource.  Each ID must be a unique value within the respective organization.</td>
+				</tr>
+				<tr>
+					<td>resource_id</td>
+					<td><b>Required</b>.  The <b>resource_id</b> references a resource defined in <a href="#resources_txt">resources.txt</a> which this activity is offered at.</td>
+				</tr>
+				<tr>
+					<td>activity_name</td>
+					<td><b>Required</b>.  The <b>activity_name</b> field is the name of the activity that will be displayed to the end user.</td>
+				</tr>
+				<tr>
+					<td>fee_class</td>
+					<td><b>Required</b>.  The <b>fee_class</b> field references a fee class as defined in <a href="#fee_classes_txt">fee_classes.txt</a> which describes the fees associated with this activity.</td>
+				</tr>
+			</table>
+
+			<h2 class="inline" id="activity_times_txt">activity_times.txt</h2>
+			<table>
+				<tr class="top">
+					<td width="25%">Field Name</td>
+					<td width="85%">Details</td>
+				</tr>
+				<tr>
+					<td>activity_times_id</td>
+					<td><b>Required</b>.  The <b>activity_times_id</b> field is an ID that uniquely identifies a schedule for a given activity.  Each ID must be a unique value within the respective organization.</td>
+				</tr>
+				<tr>
+					<td>activity_id</td>
+					<td><b>Required</b>.  The <b>activity_id</b> references the activity, as defined in <a href="#activities_txt">activities.txt</a>, the schedule is being defined for.
+				</tr>
+				<tr>
+					<td>activity_start_time</td>
+					<td>
+						<b>Required</b>.  The <b>activity_start_time</b> field is the time at which an activity starts.<br/>
+						Times must be 5 digits in HH:MM format (H:MM is also accepted, if the hour begins with 0). Do not pad times with spaces. The following columns list activity times and the proper way to express those times in the <b>activity_start_time</b> field:<br/><br/>
+						<table class="sub">
+							<tr class="top">
+								<td width="40%">Time</td>
+								<td width="60%">activity_start_time value</td>
+							</tr>
+							<tr>
+								<td>08:30 A.M.</td>
+								<td>08:30 or 8:30</td>
+							</tr>
+							<tr>
+								<td>01:30 P.M.</td>
+								<td>13:30</td>
+							</tr>
+							<tr>
+								<td>08:00 P.M.</td>
+								<td>20:00</td>
+							</tr>
+						</table>
+				</tr>
+				<tr>
+					<td>activity_end_time</td>
+					<td><b>Required</b>.  The <b>activity_end_time</b> field is the time at which an activity ends.  The time format is the same as <b>activity_start_time</b>.</td>
+				</tr>
+				<tr>
+					<td>activity_start_date</td>
+					<td><b>Required</b>.  The <b>activity_start_date</b> field is the date which this activity schedule starts.  The <b>activity_start_date</b> format is YYYYMMDD.</td>
+				</tr>
+				<tr>
+					<td>activity_end_date</td>
+					<td><b>Required</b>.  The <b>activity_end_date</b> field is the date which this activity schedule ends, inclusively.  The format is the same as <b>activity_start_date</b>.</td>
+				</tr>
+				<tr>
+					<td>monday</td>
+					<td>
+						<b>Required</b>.  The <b>monday</b> field contains a binary value that indicates whether the activity schedule is valid for all Mondays.
+						<ul class="sub">
+							<li>A value of <b>1</b> indicates that service is available for all Mondays in the date range. (The date range is specified using the <b>activity_start_date</b> and <b>activity_end_date</b> fields.)</li>
+							<li>A value of <b>0</b> indicates that service is not available on Mondays in the date range.</li>
+						</ul>
+					</td>
+				</tr>
+				<tr>
+					<td>tuesday</td>
+					<td>
+						<b>Required</b>.  The <b>tuesday</b> field contains a binary value that indicates whether the activity schedule is valid for all Tuesdays.
+						<ul class="sub">
+							<li>A value of <b>1</b> indicates that service is available for all Tuesdays in the date range. (The date range is specified using the <b>activity_start_date</b> and <b>activity_end_date</b> fields.)</li>
+							<li>A value of <b>0</b> indicates that service is not available on Tuesdays in the date range.</li>
+						</ul>
+					</td>
+				</tr>
+				<tr>
+					<td>wednesday</td>
+					<td>
+						<b>Required</b>.  The <b>wednesday</b> field contains a binary value that indicates whether the activity schedule is valid for all Wednesdays.
+						<ul class="sub">
+							<li>A value of <b>1</b> indicates that service is available for all Wednesdays in the date range. (The date range is specified using the <b>activity_start_date</b> and <b>activity_end_date</b> fields.)</li>
+							<li>A value of <b>0</b> indicates that service is not available on Wednesdays in the date range.</li>
+						</ul>
+					</td>
+				</tr>
+				<tr>
+					<td>thursday</td>
+					<td>
+						<b>Required</b>.  The <b>thursday</b> field contains a binary value that indicates whether the activity schedule is valid for all Thursdays.
+						<ul class="sub">
+							<li>A value of <b>1</b> indicates that service is available for all Thursdays in the date range. (The date range is specified using the <b>activity_start_date</b> and <b>activity_end_date</b> fields.)</li>
+							<li>A value of <b>0</b> indicates that service is not available on Thursdays in the date range.</li>
+						</ul>
+					</td>
+				</tr>
+				<tr>
+					<td>friday</td>
+					<td>
+						<b>Required</b>.  The <b>friday</b> field contains a binary value that indicates whether the activity schedule is valid for all Fridays.
+						<ul class="sub">
+							<li>A value of <b>1</b> indicates that service is available for all Fridays in the date range. (The date range is specified using the <b>activity_start_date</b> and <b>activity_end_date</b> fields.)</li>
+							<li>A value of <b>0</b> indicates that service is not available on Fridays in the date range.</li>
+						</ul>
+					</td>
+				</tr>
+				<tr>
+					<td>saturday</td>
+					<td>
+						<b>Required</b>.  The <b>saturday</b> field contains a binary value that indicates whether the activity schedule is valid for all Saturdays.
+						<ul class="sub">
+							<li>A value of <b>1</b> indicates that service is available for all Saturdays in the date range. (The date range is specified using the <b>activity_start_date</b> and <b>activity_end_date</b> fields.)</li>
+							<li>A value of <b>0</b> indicates that service is not available on Saturdays in the date range.</li>
+						</ul>
+					</td>
+				</tr>
+				<tr>
+					<td>sunday</td>
+					<td>
+						<b>Required</b>.  The <b>sunday</b> field contains a binary value that indicates whether the activity schedule is valid for all Sundays.
+						<ul class="sub">
+							<li>A value of <b>1</b> indicates that service is available for all Sundays in the date range. (The date range is specified using the <b>activity_start_date</b> and <b>activity_end_date</b> fields.)</li>
+							<li>A value of <b>0</b> indicates that service is not available on Sundays in the date range.</li>
+						</ul>
+					</td>
+				</tr>
+			</table>
+
+			<h2 class="inline" id="activity_exceptions_txt">activity_exceptions.txt</h2>
+			<table>
+				<tr class="top">
+					<td width="25%">Field Name</td>
+					<td>Details</td>
+				</tr>
+				<tr>
+					<td>activity_times_id</td>
+					<td><b>Required</b>.  The <b>activity_times_id</b> field contains the ID of the activity_time you want to make an exception for.</td>
+				</tr>
+				<tr>
+					<td>date</td>
+					<td><b>Required</b>.  The <b>date</b> field specifies a particular date when the activity_time schedule is not available.  The <b>date</b> field's value should be in YYYYMMDD format.</br>
+					<div class="note"><b>Note:</b>&nbsp;In cases where an <b>activity_time</b> is being rescheduled you should add a single day entry to the activity_times file with the new timing information.
+					</td>
+				</tr>
+				<tr>
+					<td>comment</td>
+					<td><b>Optional</b>.  The <b>comment</b> field contains any comments on the reason for the activity exception and any other information that might be useful to a user/public.
+					</td>
+				</tr>
+			</table>
+
+			<a href="#top" class="back">Back to Top</a>
+
+			<h2 class="inline" id="fees_txt">fees.txt</h2>
+			<table>
+				<tr class="top">
+					<td width="25%">Field Name</td>
+					<td>Details</td>
+				</tr>
+				<tr>
+					<td>fee_id</td>
+					<td><b>Required</b>.  The <b>fee_id</b> field contains an ID which uniquely identifies a given fee.</td>
+				</tr>
+				<tr>
+					<td>fee_name</td>
+					<td><b>Required</b>.  The <b>fee_name</b> field contains a user facing name of the given fee.</td>
+				</tr>
+				<tr>
+					<td>fee_description</td>
+					<td><b>Required</b>.  The <b>fee_description</b> field contains a short description of the given fee.  It should really only contain the age range and any other notable information.</td>
+				</tr>
+				<tr>
+					<td>fee_cost</td>
+					<td><b>Required</b>.  The <b>fee_cost</b> field contains a double value of the price of this fee.</td>
+				</tr>
+			</table>
+
+			<a href="#top" class="back">Back to Top</a>
+
+			<h2 class="inline" id="fee_classes_txt">fee_classes.txt</h2>
+			<table>
+				<tr class="top">
+					<td width="25%">Field Name</td>
+					<td>Details</td>
+				</tr>
+				<tr>
+					<td>fee_class_id</td>
+					<td><b>Required</b>. The <b>fee_class_id</b> field contains an ID which non-uniquely indentifies the fee_class being partially defined.</td>
+				</tr>
+				<tr>
+					<td>fee_id</td>
+					<td><b>Required</b>.  The <b>fee_id</b> field contains the ID of the fee being added to a fee class.</td>
+				</tr>
+			</table>
+
+			<a href="#top" class="back">Back to Top</a>
+
+			<h2 class="title" id="sample">Sample Data</h2>
+			<p class="text">
+				You can also find a repository of real data in the public <a href="https://docs.google.com/leaf?id=0B9yJ45Q5NRsOZjVjNWI0ZTMtMDE5OC00ZWNiLThmNDItOWM5MDQ0OTk2NWE0&hl=en_US">GRAF Google Docs Collection</a>.
+			</p>
+			<a href="#top" class="back">Back to Top</a>
+		</div>
+	</body>
+</html>

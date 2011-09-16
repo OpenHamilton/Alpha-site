@@ -1,0 +1,28 @@
+body { font-family: Arial, sans-serif; }
+
+#container {
+	width: 960px;
+	margin: 0 auto;
+	padding: 15px;
+}
+
+#container img { /* Hacky fix for the extra whitespace in the image */ margin-left: -40px; }
+
+.alert {
+	padding: 5px;
+	font-size: 14px;
+	line-height: 1.4;
+	border: 2px solid #FF7373;
+	background: #FFE5E5;
+}
+
+.code {
+	margin-left: 25px;
+	margin-right: 25px;
+	border-left: 4px solid green;
+	padding-top: 10px;
+	padding-bottom: 10px;
+	background-color: #C0EDC0;
+	font-size: 14px;
+	padding-left: 10px;
+}
