@@ -1,28 +1,52 @@
-body { font-family: Arial, sans-serif; }
-
-#container {
-	width: 960px;
-	margin: 0 auto;
-	padding: 15px;
+body { 
+    font-family: Arial, sans-serif; 
+    color: #03121b;
+    line-height: 150%;
 }
 
-#container img { /* Hacky fix for the extra whitespace in the image */ margin-left: -40px; }
-
 .alert {
-	padding: 5px;
-	font-size: 14px;
-	line-height: 1.4;
-	border: 2px solid #FF7373;
-	background: #FFE5E5;
+    padding: 15px;
+    font-size: 14px;
+    line-height: 1.4;
+    border: 2px solid #115A83;
+    background: #e0f4ff;
+    border-radius: 10px;
+    color: black;
+    font-weight: bold;
 }
 
 .code {
-	margin-left: 25px;
-	margin-right: 25px;
-	border-left: 4px solid green;
-	padding-top: 10px;
-	padding-bottom: 10px;
-	background-color: #C0EDC0;
-	font-size: 14px;
-	padding-left: 10px;
+    color: black;
+    margin: 25px;
+    border-left: 4px solid #1d9ae0;
+    padding: 10px;
+    background-color: #b9d2e0;
+    font-size: 14px;
+    line-height: 100%;
+}
+
+.footer {
+    color: white;
+    background-color: #0c415e;
+}
+
+.footer a {
+    color: white;
+}
+
+.center {
+    text-align: center;
+}
+
+
+#mapPlugin  {
+    border: 1px solid #000000;
+    overflow: auto;
+    width: 100%
+}
+#mapPlugin div.mapViewport {float: left;
+    width: 720px;
+}
+#mapPlugin div.mapControls {float: left;
+    width: 220px;
 }
