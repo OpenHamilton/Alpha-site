@@ -39,7 +39,7 @@ var Dowsing = {
 	 * Location to initially center map on 
 	 * @type {google.maps.LatLng}
 	 */
-	center: null,
+	_center: null,
 
 	/**
 	 * Zoom level to start map on
@@ -86,6 +86,15 @@ var Dowsing = {
 	 * @type {HTMLelement}
 	 */
 	elem: null,
+
+	/**
+	 * Lat/Lng co-ordinates to center the map on when initializing
+	 * @type {object}
+	 */
+	center: {
+		lat: 43.24895389686911, 
+		lng: -79.86236572265625
+	},
 };
 
 /**
@@ -96,7 +105,7 @@ Dowsing.display = function() {
 	this.elem = document.getElementById('dowsing_canvas');
 
 	// Ensures the element exists in the DOM, otherwise try again in a second
-	if (this.elem == null) {
+	if ( this.elem == null ) {
 		setTimeout("Dowsing.display()", 1000);
 		return;
 	}
@@ -115,18 +124,43 @@ Dowsing.display = function() {
 };
 
 /**
+ * Clears placeholder text on focus.
+ * @param {object} i A reference to the input that was focussed.
+ */
+Dowsing.addressFocus = function(i) {
+	if ( i.value == 'Enter an address...' ) {
+		i.value = '';
+	}
+};
+
+/**
+ * Restores placeholder if input is empty.
+ * @param {object} i A reference to the input that was blurred.
+ */
+Dowsing.addressBlur = function(i) {
+	if ( i.value == '' ) {
+		i.value = 'Enter an address...';
+	}
+};
+
+/**
  * Creates the header toolbar and appends it to the widget
  */
 Dowsing.header = function() {
 	var header = document.createElement('div');
 	header.id = 'dowsing_header';
 	header.className = 'grad_box';
-	header.innerHTML = '<input type="text" id="dowsing_address" class="text_input" value="Enter an address..." onfocus="if(this.value==\'Enter an address...\'){this.value=\'\';}" onblur="if(this.value==\'\'){this.value=\'Enter an address...\';}"/><input type="submit" value="Search" id="dowsing_search" class="button input" onclick="javascript:Dowsing.zoomToAddress();"/><input type="submit" value="Reset" class="button input" style="float:right !important;margin-right: 8px;" id="dowsing_reset" onclick="javascript:Dowsing.reset()"/>';
+	header.innerHTML = '<input type="text" id="dowsing_address" class="text_input" value="Enter an address..."' +
+					   ' onfocus="javascript:Dowsing.addressFocus(this);" onblur="javascript:Dowsing.addressBlur(this);"/>' +
+					   '<input type="submit" value="Search" id="dowsing_search" class="button input" onclick="javascript:Dowsing.zoomToAddress();"/>' + 
+					   '<input type="submit" value="Reset" class="button input" style="float:right !important;margin-right: 8px;" id="dowsing_reset"' +
+					   ' onclick="javascript:Dowsing.reset()"/>';
+
 	this.elem.appendChild(header);
 };
 
 /**
- * Creates the bottom legend toolbar and append it to the widget
+ * Creates the bottom legend toolbar and appends it to the widget
  */
 Dowsing.legend = function() {
 	var legend       = document.createElement('div');
@@ -134,11 +168,11 @@ Dowsing.legend = function() {
 	legend.className = 'grad_box';
 
 	var contents = '<ul id="dowsing_list">';
-	contents    += '<li><img src="'+this.baseUrl+'sm_red.png" class="dowsing_image"/>Beach</li>';
-	contents    += '<li><img src="'+this.baseUrl+'sm_pink.png" class="dowsing_image"/>Outdoor Pool</li>';
-	contents    += '<li><img src="'+this.baseUrl+'sm_yellow.png" class="dowsing_image"/>Indoor Pool</li>';
-	contents    += '<li><img src="'+this.baseUrl+'sm_purple.png" class="dowsing_image"/>Splash Pad</li>';
-	contents    += '<li><img src="'+this.baseUrl+'sm_green.png" class="dowsing_image"/>Wading Pool</li>';
+	contents    += '<li><img src="' + this.baseUrl + 'sm_red.png" class="dowsing_image"/>Beach</li>';
+	contents    += '<li><img src="' + this.baseUrl + 'sm_pink.png" class="dowsing_image"/>Outdoor Pool</li>';
+	contents    += '<li><img src="' + this.baseUrl + 'sm_yellow.png" class="dowsing_image"/>Indoor Pool</li>';
+	contents    += '<li><img src="' + this.baseUrl + 'sm_purple.png" class="dowsing_image"/>Splash Pad</li>';
+	contents    += '<li><img src="' + this.baseUrl + 'sm_green.png" class="dowsing_image"/>Wading Pool</li>';
 	contents    += '</ul><div class="clearfix"></div>';
 
 	legend.innerHTML = contents;
@@ -151,9 +185,9 @@ Dowsing.legend = function() {
  */
 Dowsing.show = function() {
 	/* Center our map on Hamilton */
-	this.center = new google.maps.LatLng(43.24895389686911, -79.86236572265625);
+	this._center = new google.maps.LatLng(this.center.lat, this.center.lng);
 
-	/* Get ourselves a geocoder for use at a later time */
+	// Creates a google geocoder and keeps a reference for later
 	this.geocoder = new google.maps.Geocoder();
 
 	this.config(DowsingConfig);
@@ -162,24 +196,23 @@ Dowsing.show = function() {
 
 	this.map_canvas = document.createElement('div');
 	this.map_canvas.id = 'dowsing_map_canvas';
-	/* 
-	 * 44px = the height of the header
-	 * 28px = the height of the legend
-	 */
+
+	// 44px = the height of the header
+	// 28px = the height of the legend
 	this.map_canvas.style.height = (this.height - 44 - 28) + "px";
 	this.map_canvas.style.width  = this.width + "px";
 	this.elem.appendChild(this.map_canvas);
 
 	this.legend();	
 
-	/* Draw a new google map */
+	// Draw a new google map
 	this.map = new google.maps.Map(this.map_canvas, {
-		center    : this.center,
+		center    : this._center,
 		zoom      : this.zoom,
 		mapTypeId : google.maps.MapTypeId.ROADMAP
 	});
 	
-	/* Styling information for Fusion Table Layers */
+	// Styling information for Fusion Table Layers
 	var style = [{
 		featureType : 'all',
 		elementType : 'all',
@@ -190,7 +223,7 @@ Dowsing.show = function() {
 
 	this.info_window = new google.maps.InfoWindow(); 
 
-	/* Add each fusion table as a new layer on the map */
+	// Add each fusion table as a new layer on the map
   	this.layer_1 = new google.maps.FusionTablesLayer({
   		query : {
   			select : 'Lat',
@@ -236,7 +269,7 @@ Dowsing.show = function() {
   		suppressInfoWindows : true
   	});
 
-  	/* Add the click handlers to the map */
+  	// Add the click handlers to the map
   	google.maps.event.addListener(this.layer_1, 'click', this.windowControl);
   	google.maps.event.addListener(this.layer_2, 'click', this.windowControl);
   	google.maps.event.addListener(this.layer_3, 'click', this.windowControl);
@@ -268,7 +301,7 @@ Dowsing.zoomToAddress = function() {
 	/* Use the geocoder to geocode the address */
 	this.geocoder.geocode({ 'address' : document.getElementById("dowsing_address").value }, function(results, status) {
 		/* If the status of the geocode is OK */
-		if (status == google.maps.GeocoderStatus.OK) {
+		if ( status == google.maps.GeocoderStatus.OK ) {
 			/* Change the center and zoom of the map */
 			self.map.setCenter(results[0].geometry.location);
 			self.map.setZoom(14);
@@ -280,7 +313,7 @@ Dowsing.zoomToAddress = function() {
  * Reset the zoom & center values
  */
 Dowsing.reset = function() {
-	this.map.setCenter(this.center);
+	this.map.setCenter(this._center);
 	this.map.setZoom(this.zoom);
 	document.getElementById('dowsing_address').value = 'Enter an address...';
 };
